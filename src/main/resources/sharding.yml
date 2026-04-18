@@ -1,0 +1,39 @@
+dataSources:
+  shardwallet1:
+    dataSourceClassName: com.zaxxer.hikari.HikariDataSource
+    driverClassName: com.mysql.cj.jdbc.Driver
+    jdbcUrl: jdbc:mysql://localhost:3306/shardwallet1
+    username: root
+    password: Admin@123
+  shardwallet2:
+    dataSourceClassName: com.zaxxer.hikari.HikariDataSource
+    driverClassName: com.mysql.cj.jdbc.Driver
+    jdbcUrl: jdbc:mysql://localhost:3306/shardwallet2
+    username: root
+    password: Admin@123
+
+rules:
+  - !SHARDING
+    defaultDatabaseStrategy:
+      standard:
+        shardingColumn: id
+        shardingAlgorithmName: database_inline
+    keyGenerators:
+      snowflake:
+        type: SNOWFLAKE
+    shardingAlgorithms:
+      database_inline:
+        type: INLINE
+        props:
+          algorithm-expression: shardwallet${id % 2 + 1}
+
+    tables:
+      user:
+        actualDataNodes: shardwallet${1..2}.user
+        databaseStrategy:
+          standard:
+            shardingColumn: id
+            shardingAlgorithmName: database_inline
+        keyGenerateStrategy:
+          column: id
+          keyGeneratorName: snowflake
