@@ -71,4 +71,14 @@ public class SagaContext {
 
         throw new IllegalArgumentException("Unsupported type for BigDecimal: " + value.getClass());
     }
+
+    public String getString(String key){
+        Object value = get(key);
+
+        if(value instanceof String){
+                return (String)value;
+        }
+
+        return null;
+    }
 }
