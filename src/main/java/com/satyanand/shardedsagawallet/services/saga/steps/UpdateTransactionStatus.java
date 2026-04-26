@@ -1,8 +1,10 @@
-package com.satyanand.shardedsagawallet.services.saga;
+package com.satyanand.shardedsagawallet.services.saga.steps;
 
 import com.satyanand.shardedsagawallet.entities.Transaction;
 import com.satyanand.shardedsagawallet.entities.TransactionStatus;
 import com.satyanand.shardedsagawallet.repositories.TransactionRepository;
+import com.satyanand.shardedsagawallet.services.saga.SagaContext;
+import com.satyanand.shardedsagawallet.services.saga.SagaStep;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -10,7 +12,7 @@ import org.springframework.stereotype.Service;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class UpdateTransactionStatus implements SagaStep{
+public class UpdateTransactionStatus implements SagaStep {
 
     private final TransactionRepository transactionRepository;
 
