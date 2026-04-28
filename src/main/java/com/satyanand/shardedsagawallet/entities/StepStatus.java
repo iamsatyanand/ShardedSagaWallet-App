@@ -1,7 +1,7 @@
 package com.satyanand.shardedsagawallet.entities;
 
 public enum StepStatus {
-    STARTED,
+    PENDING,
     RUNNING,
     COMPLETED,
     FAILED,

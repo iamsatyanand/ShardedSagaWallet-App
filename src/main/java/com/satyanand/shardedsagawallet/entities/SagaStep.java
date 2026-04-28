@@ -1,10 +1,7 @@
 package com.satyanand.shardedsagawallet.entities;
 import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.apache.calcite.model.JsonType;
 
 import java.math.BigDecimal;
@@ -16,6 +13,7 @@ import java.time.LocalDateTime;
 @Table(name="saga_step")
 @Getter
 @Setter
+@Builder
 public class SagaStep {
 
     @Id

@@ -1,11 +1,10 @@
 package com.satyanand.shardedsagawallet.entities;
 import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.apache.calcite.model.JsonType;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -16,6 +15,7 @@ import java.time.LocalDateTime;
 @Table(name="saga_instance")
 @Getter
 @Setter
+@Builder
 public class SagaInstance {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,10 +29,12 @@ public class SagaInstance {
     @Column(name = "context", columnDefinition = "json")
     private String context;
 
-    @Column(name = "current_step", nullable = false)
+    @Column(name = "current_step")
     private String currentStep;
 
+    @CreatedDate
     private LocalDateTime createdAt;
+    @LastModifiedDate
     private LocalDateTime updatedAt;
     private LocalDateTime completedAt;
 }

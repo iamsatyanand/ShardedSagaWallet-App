@@ -1,5 +1,6 @@
 package com.satyanand.shardedsagawallet.repositories;
 
+import com.satyanand.shardedsagawallet.entities.SagaStatus;
 import com.satyanand.shardedsagawallet.entities.SagaStep;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -9,6 +10,8 @@ import java.util.List;
 
 public interface SagaStepRepository extends JpaRepository<SagaStep, Long> {
     List<SagaStep> findBySagaInstanceId(Long sagaInstanceId);
+
+    List<SagaStep> findBySagaInstanceIdAndStatus(Long sagaInstanceId, SagaStatus status);
 
     @Query("select s from SagaStep s where s.sagaInstanceId = :sagaInstanceId and s.status = 'COMPLETED'")
     List<SagaStep> findCompletedStepsBySagaInstanceId(@Param("sagaInstanceId") Long sagaInstanceId);
