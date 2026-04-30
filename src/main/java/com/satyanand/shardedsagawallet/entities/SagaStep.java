@@ -30,7 +30,7 @@ public class SagaStep {
     @Column(name = "status", nullable = false)
     private StepStatus status;
 
-    @Column(name = "error_message", nullable = false)
+    @Column(name = "error_message", columnDefinition = "text")
     private String errorMessage;
 
     @Type(JsonType.class)

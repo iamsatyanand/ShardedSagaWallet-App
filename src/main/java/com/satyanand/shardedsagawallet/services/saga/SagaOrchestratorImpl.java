@@ -53,15 +53,52 @@ public class SagaOrchestratorImpl implements SagaOrchestrator{
             throw new RuntimeException("Saga step not found: " + stepName);
         }
 
-        SagaStep sagaStepDB =  sagaStepRepository.findBySagaInstanceIdAndStatus(sagaInstanceId, SagaStatus.RUNNING)
+        SagaStep sagaStepDB =  sagaStepRepository.findBySagaInstanceIdAndStatus(sagaInstanceId, StepStatus.PENDING)
                 .stream()
                 .filter(s -> s.getStepName().equals(stepName))
                 .findFirst()
                 .orElse(SagaStep.builder().sagaInstanceId(sagaInstance.getId()).stepName(stepName).status(StepStatus.PENDING).build());
 
 
+        if(sagaStepDB.getId() == null){
+            sagaStepRepository.save(sagaStepDB);
+        }
 
-        return false;
+        try{
+
+            SagaContext context = objectMapper.readValue(sagaInstance.getContext(), SagaContext.class);
+            sagaStepDB.setStatus(StepStatus.RUNNING);
+            sagaStepRepository.save(sagaStepDB);
+
+            boolean success = step.execute(context);
+
+            if(success){
+                sagaStepDB.setStatus(StepStatus.COMPLETED);
+                sagaStepRepository.save(sagaStepDB);
+
+                sagaInstance.setCurrentStep(stepName); // step we just completed
+                sagaInstance.setStatus(SagaStatus.RUNNING); // saga is not completed only one of the step completed saga is still running
+                sagaInstanceRepository.save(sagaInstance);
+
+                log.info("Step {} executed successfully", stepName);
+                return true;
+
+            }
+            else{
+                sagaStepDB.setStatus(StepStatus.FAILED);
+                sagaStepRepository.save(sagaStepDB);
+                log.error("Step {} failed", stepName);
+                return false;
+            }
+
+        }catch (Exception e){
+            sagaStepDB.setStatus(StepStatus.FAILED);
+            sagaStepRepository.save(sagaStepDB);
+            log.error("Failed to execute step {}", stepName);
+            return false;
+        }
+
+
     }
 
     @Override
