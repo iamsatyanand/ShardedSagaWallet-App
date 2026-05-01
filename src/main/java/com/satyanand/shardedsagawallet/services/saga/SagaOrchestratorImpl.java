@@ -120,17 +120,17 @@ public class SagaOrchestratorImpl implements SagaOrchestrator{
         try{
 
             SagaContext context = objectMapper.readValue(sagaInstance.getContext(), SagaContext.class);
-            sagaStepDB.setStatus(StepStatus.RUNNING);
+            sagaStepDB.markAsRunning();
             sagaStepRepository.save(sagaStepDB);
 
             boolean success = step.execute(context);
 
             if(success){
-                sagaStepDB.setStatus(StepStatus.COMPLETED);
+                sagaStepDB.markAsCompleted();
                 sagaStepRepository.save(sagaStepDB);
 
                 sagaInstance.setCurrentStep(stepName); // step we just completed
-                sagaInstance.setStatus(SagaStatus.RUNNING); // saga is not completed only one of the step completed saga is still running
+                sagaInstance.markAsRunning(); // saga is not completed only one of the step completed saga is still running
                 sagaInstanceRepository.save(sagaInstance);
 
                 log.info("Step {} executed successfully", stepName);
@@ -138,14 +138,14 @@ public class SagaOrchestratorImpl implements SagaOrchestrator{
 
             }
             else{
-                sagaStepDB.setStatus(StepStatus.FAILED);
+                sagaStepDB.markAsFailed();
                 sagaStepRepository.save(sagaStepDB);
                 log.error("Step {} failed", stepName);
                 return false;
             }
 
         }catch (Exception e){
-            sagaStepDB.setStatus(StepStatus.FAILED);
+            sagaStepDB.markAsFailed();
             sagaStepRepository.save(sagaStepDB);
             log.error("Failed to execute step {}", stepName);
             return false;
@@ -179,13 +179,14 @@ public class SagaOrchestratorImpl implements SagaOrchestrator{
         try{
 
             SagaContext context = objectMapper.readValue(sagaInstance.getContext(), SagaContext.class);
-            sagaStepDB.setStatus(StepStatus.COMPENSATING);
+            sagaStepDB.markAsCompensating();
             sagaStepRepository.save(sagaStepDB);
 
             boolean success = step.compensate(context);
 
+            // 4. Update the status of the saga step accordingly
             if(success){
-                sagaStepDB.setStatus(StepStatus.COMPENSATED);
+                sagaStepDB.markAsCompensated();
                 sagaStepRepository.save(sagaStepDB);
 
                 log.info("Step {} compensated successfully", stepName);
@@ -193,22 +194,20 @@ public class SagaOrchestratorImpl implements SagaOrchestrator{
 
             }
             else{
-                sagaStepDB.setStatus(StepStatus.FAILED);
+                sagaStepDB.markAsFailed();
                 sagaStepRepository.save(sagaStepDB);
                 log.error("Step {} failed", stepName);
                 return false;
             }
 
         }catch (Exception e){
-            sagaStepDB.setStatus(StepStatus.FAILED);
+            sagaStepDB.markAsFailed();
             sagaStepRepository.save(sagaStepDB);
             log.error("Failed to execute step {}", stepName);
             return false;
         }
-        // 4. Update the status of the saga step accordingly
 
 
-        return false;
     }
 
     /*
@@ -284,7 +283,7 @@ public class SagaOrchestratorImpl implements SagaOrchestrator{
                 .orElseThrow(() -> new RuntimeException("Saga instance not found: " + sagaInstanceId));
 
         List<SagaStep> completedSteps = sagaStepRepository.findCompletedStepsBySagaInstanceId(sagaInstanceId);
-        sagaInstance.setStatus(SagaStatus.COMPENSATING);
+        sagaInstance.markAsCompensating();
         sagaInstanceRepository.save(sagaInstance);
         boolean allCompensated = true;
         for(SagaStep completedStep : completedSteps){
@@ -294,7 +293,7 @@ public class SagaOrchestratorImpl implements SagaOrchestrator{
             }
         }
         if(allCompensated){
-            sagaInstance.setStatus(SagaStatus.COMPENSATED);
+            sagaInstance.markAsCompensated();
             sagaInstanceRepository.save(sagaInstance);
             log.info("Saga {} compensated successfully", sagaInstanceId);
         }
@@ -318,7 +317,7 @@ public class SagaOrchestratorImpl implements SagaOrchestrator{
     public void failSaga(Long sagaInstanceId) {
         SagaInstance sagaInstance = sagaInstanceRepository.findById(sagaInstanceId)
                 .orElseThrow(() -> new RuntimeException("Saga instance not found: " + sagaInstanceId));
-        sagaInstance.setStatus(SagaStatus.FAILED);
+        sagaInstance.markAsFailed();
         sagaInstanceRepository.save(sagaInstance);
 
         log.warn("Saga {} failed", sagaInstanceId);
@@ -339,7 +338,7 @@ public class SagaOrchestratorImpl implements SagaOrchestrator{
     public void completeSaga(Long sagaInstanceId) {
         SagaInstance sagaInstance = sagaInstanceRepository.findById(sagaInstanceId)
                 .orElseThrow(() -> new RuntimeException("Saga instance not found: " + sagaInstanceId));
-        sagaInstance.setStatus(SagaStatus.COMPLETED);
+        sagaInstance.markAsCompleted();
         sagaInstanceRepository.save(sagaInstance);
         log.info("Saga {} completed", sagaInstanceId);
     }

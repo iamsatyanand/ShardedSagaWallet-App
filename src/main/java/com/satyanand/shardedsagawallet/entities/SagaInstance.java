@@ -7,6 +7,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDateTime;
 
 @Entity
@@ -32,9 +33,27 @@ public class SagaInstance {
     @Column(name = "current_step")
     private String currentStep;
 
-    @CreatedDate
-    private LocalDateTime createdAt;
-    @LastModifiedDate
-    private LocalDateTime updatedAt;
-    private LocalDateTime completedAt;
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private Instant createdAt;
+
+    @Column(name = "updated_at")
+    private Instant updatedAt;
+
+    @PrePersist
+    protected void onCreate() {
+        createdAt = Instant.now();
+        updatedAt = Instant.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = Instant.now();
+    }
+
+    public void markAsStarted()      { this.status = SagaStatus.STARTED; }
+    public void markAsRunning()      { this.status = SagaStatus.RUNNING; }
+    public void markAsCompleted()    { this.status = SagaStatus.COMPLETED; }
+    public void markAsFailed()       { this.status = SagaStatus.FAILED; }
+    public void markAsCompensating() { this.status = SagaStatus.COMPENSATING; }
+    public void markAsCompensated()  { this.status = SagaStatus.COMPENSATED; }
 }

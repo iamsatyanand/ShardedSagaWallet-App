@@ -5,6 +5,7 @@ import lombok.*;
 import org.apache.calcite.model.JsonType;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDateTime;
 
 @Entity
@@ -36,4 +37,28 @@ public class SagaStep {
     @Type(JsonType.class)
     @Column(name = "step_data", columnDefinition = "json")
     private String stepData;
+
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private Instant createdAt;
+
+    @Column(name = "updated_at")
+    private Instant updatedAt;
+
+    @PrePersist
+    protected void onCreate() {
+        createdAt = Instant.now();
+        updatedAt = Instant.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = Instant.now();
+    }
+
+    public void markAsCompensated() { this.status = StepStatus.COMPENSATED; }
+    public void markAsFailed()      { this.status = StepStatus.FAILED; }
+    public void markAsPending()     { this.status = StepStatus.PENDING; }
+    public void markAsRunning()     { this.status = StepStatus.RUNNING; }
+    public void markAsCompleted()   { this.status = StepStatus.COMPLETED; }
+    public void markAsCompensating(){ this.status = StepStatus.COMPENSATING; }
 }
