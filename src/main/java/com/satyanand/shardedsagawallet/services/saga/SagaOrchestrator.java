@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface SagaOrchestrator {
 
-    SagaInstance startSaga(SagaContext context);
+    Long startSaga(SagaContext context);
 
     boolean executeStep(Long sagaInstanceId, String stepName);
 

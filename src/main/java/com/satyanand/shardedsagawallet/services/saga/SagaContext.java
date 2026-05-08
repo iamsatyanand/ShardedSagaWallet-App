@@ -1,12 +1,18 @@
 package com.satyanand.shardedsagawallet.services.saga;
 
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
-
+@Data
+@NoArgsConstructor
+@Builder
 public class SagaContext {
 
-    Map<String, Object> data;
+    private Map<String, Object> data;
 
     public SagaContext(Map<String, Object> data) {
         this.data = data != null ? data : new HashMap<>();

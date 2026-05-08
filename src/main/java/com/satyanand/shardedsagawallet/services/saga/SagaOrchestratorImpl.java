@@ -41,7 +41,7 @@ public class SagaOrchestratorImpl implements SagaOrchestrator{
      */
     @Override
     @Transactional
-    public SagaInstance startSaga(SagaContext context) {
+    public Long startSaga(SagaContext context) {
         try{
             String contextJSON = objectMapper.writeValueAsString(context);
             SagaInstance sagaInstance = SagaInstance.builder()
@@ -51,7 +51,7 @@ public class SagaOrchestratorImpl implements SagaOrchestrator{
 
             sagaInstance = sagaInstanceRepository.save(sagaInstance);
             log.info("Started saga with id {}", sagaInstance.getId());
-            return sagaInstance;
+            return sagaInstance.getId();
 
         }
         catch (Exception e){
@@ -324,6 +324,7 @@ public class SagaOrchestratorImpl implements SagaOrchestrator{
         sagaInstanceRepository.save(sagaInstance);
 
         log.warn("Saga {} failed", sagaInstanceId);
+        compensateSaga(sagaInstanceId);
     }
 
     /*

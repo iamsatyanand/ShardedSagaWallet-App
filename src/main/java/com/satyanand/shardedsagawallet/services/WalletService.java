@@ -41,4 +41,28 @@ public class WalletService {
         return walletRepository.findByUserId(userId);
     }
 
+    @Transactional
+    public void debit(Long walletId, BigDecimal amount){
+        log.info("Debiting {} from wallet {}", amount, walletId);
+        Wallet wallet = getWalletById(walletId);
+        wallet.debit(amount);
+        walletRepository.save(wallet);
+        log.info("Debit successful for wallet {}", walletId);
+    }
+
+    @Transactional
+    public void credit(Long walletId, BigDecimal amount){
+        log.info("Crediting {} to wallet {}", amount, walletId);
+        Wallet wallet = getWalletById(walletId);
+        wallet.credit(amount);
+        walletRepository.save(wallet);
+        log.info("Credit successful for wallet {}", walletId);
+    }
+
+    public BigDecimal getWalletBalance(Long walletId){
+        log.info("Getting balance for wallet {}", walletId);
+        BigDecimal balance = getWalletById(walletId).getBalance();
+        log.info("Balance for wallet {} is {}", walletId, balance);
+        return balance;
+    }
 }
