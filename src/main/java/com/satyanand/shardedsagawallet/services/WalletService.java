@@ -42,21 +42,24 @@ public class WalletService {
     }
 
     @Transactional
-    public void debit(Long walletId, BigDecimal amount){
-        log.info("Debiting {} from wallet {}", amount, walletId);
-        Wallet wallet = getWalletById(walletId);
-        wallet.debit(amount);
-        walletRepository.save(wallet);
-        log.info("Debit successful for wallet {}", walletId);
+    public void debit(Long userId, BigDecimal amount) {
+        log.info("Debiting {} from wallet {}", amount, userId);
+        Wallet wallet = getWalletByUserId(userId);
+        walletRepository.updateBalanceByUserId(userId, wallet.getBalance().subtract(amount));
+        log.info("Debit successful for wallet {}", wallet.getId());
+    }
+
+    public Wallet getWalletByUserId(Long userId) {
+        log.info("Getting wallet by user id {}", userId);
+        return walletRepository.findByUserId(userId).getFirst();
     }
 
     @Transactional
-    public void credit(Long walletId, BigDecimal amount){
-        log.info("Crediting {} to wallet {}", amount, walletId);
-        Wallet wallet = getWalletById(walletId);
-        wallet.credit(amount);
-        walletRepository.save(wallet);
-        log.info("Credit successful for wallet {}", walletId);
+    public void credit(Long userId, BigDecimal amount) {
+        log.info("Crediting {} to wallet {}", amount, userId);
+        Wallet wallet = getWalletByUserId(userId);
+        walletRepository.updateBalanceByUserId(userId, wallet.getBalance().add(amount));
+        log.info("Credit successful for wallet {}", wallet.getId());
     }
 
     public BigDecimal getWalletBalance(Long walletId){

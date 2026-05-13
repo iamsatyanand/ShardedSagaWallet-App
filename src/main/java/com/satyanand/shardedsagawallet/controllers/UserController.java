@@ -1,5 +1,6 @@
 package com.satyanand.shardedsagawallet.controllers;
 
+import com.satyanand.shardedsagawallet.dtos.PaginatedResponse;
 import com.satyanand.shardedsagawallet.entities.User;
 import com.satyanand.shardedsagawallet.services.UserService;
 import lombok.RequiredArgsConstructor;
@@ -31,5 +32,13 @@ public class UserController {
     @GetMapping("/name")
     public ResponseEntity<List<User>> getUserByName(@RequestParam String name){
         return ResponseEntity.status(HttpStatus.OK).body(userService.getUsersByName(name));
+    }
+
+    @GetMapping()
+    public ResponseEntity<PaginatedResponse<User>> getAllUsers(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ){
+        return ResponseEntity.ok(userService.getAllUsers(page, size));
     }
 }

@@ -26,10 +26,54 @@ rules:
         type: INLINE
         props:
           algorithm-expression: shardwallet${id % 2 + 1}
+      database_inline_user_id:
+        type: INLINE
+        props:
+          algorithm-expression: shardwallet${user_id % 2 + 1}
 
     tables:
       user:
         actualDataNodes: shardwallet${1..2}.user
+        databaseStrategy:
+          standard:
+            shardingColumn: id
+            shardingAlgorithmName: database_inline
+        keyGenerateStrategy:
+          column: id
+          keyGeneratorName: snowflake
+
+      wallet:
+        actualDataNodes: shardwallet${1..2}.wallet
+        databaseStrategy:
+          standard:
+            shardingColumn: user_id
+            shardingAlgorithmName: database_inline_user_id
+        keyGenerateStrategy:
+          column: id
+          keyGeneratorName: snowflake
+
+      transaction:
+        actualDataNodes: shardwallet${1..2}.transaction
+        databaseStrategy:
+          standard:
+            shardingColumn: id
+            shardingAlgorithmName: database_inline
+        keyGenerateStrategy:
+          column: id
+          keyGeneratorName: snowflake
+
+      saga_instance:
+        actualDataNodes: shardwallet${1..2}.saga_instance
+        databaseStrategy:
+          standard:
+            shardingColumn: id
+            shardingAlgorithmName: database_inline
+        keyGenerateStrategy:
+          column: id
+          keyGeneratorName: snowflake
+
+      saga_step:
+        actualDataNodes: shardwallet${1..2}.saga_step
         databaseStrategy:
           standard:
             shardingColumn: id
