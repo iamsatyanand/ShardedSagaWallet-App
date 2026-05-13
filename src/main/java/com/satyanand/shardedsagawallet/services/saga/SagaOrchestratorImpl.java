@@ -87,6 +87,8 @@ public class SagaOrchestratorImpl implements SagaOrchestrator{
     @Override
     @Transactional
     public boolean executeStep(Long sagaInstanceId, String stepName) {
+
+        log.info("Step {} is currently executing", stepName);
         SagaInstance sagaInstance = sagaInstanceRepository.findById(sagaInstanceId)
                 .orElseThrow(() -> new RuntimeException("Saga Instance not found"));
 

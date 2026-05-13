@@ -38,8 +38,13 @@ public class CreditDestinationWalletStep implements SagaStepInterface {
 
         //Step 3 - credit the destination wallet
 
-        wallet.credit(amount);
-        walletRepository.save(wallet);
+//        wallet.credit(amount);
+//        walletRepository.save(wallet);
+
+        BigDecimal newBalance = wallet.getBalance().add(amount);
+
+        // Targeted update — user_id only in WHERE, not in SET
+        walletRepository.updateBalanceByUserId(toWalletId, newBalance);
 
         log.info("wallet saved with balance {}", wallet.getBalance());
 
@@ -72,8 +77,12 @@ public class CreditDestinationWalletStep implements SagaStepInterface {
 
         //Step 3 - credit the destination wallet
 
-        wallet.debit(amount);
-        walletRepository.save(wallet);
+//        wallet.debit(amount);
+//        walletRepository.save(wallet);
+
+        BigDecimal newBalance = wallet.getBalance().subtract(amount);
+
+        walletRepository.updateBalanceByUserId(toWalletId, newBalance);
 
         log.info("wallet saved with balance {}", wallet.getBalance());
 
